@@ -8,9 +8,12 @@ const router = require("./router");
 const swaggerDocument = require("./swagger.json");
 AWS.config.update({ region: "us-east-2" });
 
-var sqs = new AWS.SQS({ apiVersion: "2012-11-05" });
+var sqs = new AWS.SQS({
+  apiVersion: "2012-11-05",
+  endpoint: "http://localstack:4576",
+});
 var params = {
-  QueueName: "notifications-queue",
+  QueueName: "notifications-queue2",
   Attributes: {
     DelaySeconds: "60",
     MessageRetentionPeriod: "86400",
@@ -34,6 +37,14 @@ router.get("/health", (req, res) => {
       console.log("Error", err);
     } else {
       console.log("Success", data.QueueUrl);
+    }
+  });
+
+  sqs.listQueues(params, function (err, data) {
+    if (err) {
+      console.log("Error", err);
+    } else {
+      console.log("Success", data.QueueUrls);
     }
   });
   res.status(201).send("HI");
